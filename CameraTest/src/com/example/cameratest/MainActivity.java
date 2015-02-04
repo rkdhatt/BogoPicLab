@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
 		// intent.setComponent(cn);
 
 		// Create a folder to store pictures
+		// get path of directory of SD card.
 		String folder = Environment.getExternalStorageDirectory()
 				.getAbsolutePath() + "/tmp";
 		File folderF = new File(folder);
@@ -60,10 +61,20 @@ public class MainActivity extends Activity {
 		}
 
 		// Create an URI for the picture file
+		// comes up with a name for a picture (distinct names).
+		// location of the folder becomes a URI.
 		String imageFilePath = folder + "/"
 				+ String.valueOf(System.currentTimeMillis()) + ".jpg";
 		File imageFile = new File(imageFilePath);
 		imageFileUri = Uri.fromFile(imageFile);
+		
+		// create intent objct used to request image capturing
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, imageFileUri); 
+		// limitation of putExtra -item should be serialized if a large data 
+		//structure is to be sent.
+		
+		startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE); // expecting result once done taking a photo
 
 		// TODO: Put in the intent in the tag MediaStore.EXTRA_OUTPUT the URI
 		
@@ -73,6 +84,25 @@ public class MainActivity extends Activity {
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// resultCode indicates success//failure of taking photo
+		if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+			if(resultCode == RESULT_OK) {
+				TextView tv = (TextView) findViewById(R.id.status);
+				tv.setText("Photo OK!");
+				ImageButton ib = (ImageButton) findViewById(R.id.TakeAPhoto);
+				Drawable photo = Drawable.createFromPath(imageFileUri.getPath());
+				ib.setImageDrawable(photo);
+				
+			} else if (resultCode == RESULT_CANCELED) {
+				TextView tv = (TextView) findViewById(R.id.status);
+				tv.setText("Photo CANCELED!");
+				
+			} else{
+				TextView tv = (TextView) findViewById(R.id.status);
+				tv.setText("Photo ...idk...");
+			}
+ 			
+		}
 		// TODO: Handle the results from CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE
 		
 		// TODO: Handle the cases for RESULT_OK, RESULT_CANCELLED, and others
